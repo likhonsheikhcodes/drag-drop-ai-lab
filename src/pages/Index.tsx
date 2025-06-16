@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, Zap, Code, Users, Target, Play, Sparkles, Brain, FileText, Layers } from "lucide-react";
+import { ArrowRight, Zap, Code, Users, Target, Play, Sparkles, Brain, FileText, Layers, Paperclip, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
 import { CodePlayground } from "@/components/CodePlayground";
@@ -73,77 +74,111 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-orange-600/10" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Hero Section - Similar to Bolt's design */}
+      <section className="relative overflow-hidden min-h-screen flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-orange-900/20" />
         <div className="relative container mx-auto px-4 py-20">
           <div className="text-center max-w-4xl mx-auto">
-            <Badge className="mb-6 bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200 transition-colors">
+            <Badge className="mb-8 bg-blue-600/20 text-blue-300 border-blue-500/30 hover:bg-blue-600/30 transition-colors">
               <Sparkles className="w-3 h-3 mr-1" />
               Y Combinator Backed
             </Badge>
             
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-orange-600 bg-clip-text text-transparent mb-6 leading-tight">
-              no-code.wtf
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+              What do you want to build?
             </h1>
             
-            <p className="text-2xl text-gray-600 mb-4 font-medium">
-              Zero Code Required
+            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+              Create stunning apps & websites by chatting with AI.
             </p>
             
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-              AI prompt execution and analysis platform that enables users to work with AI prompts without coding. 
-              Visual, drag-and-drop tools for AI development.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all">
-                Get Started <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="px-8 py-6 text-lg font-semibold border-2 hover:bg-gray-50 transition-all">
-                Watch Demo
+            {/* Main Input Area */}
+            <div className="max-w-2xl mx-auto mb-12">
+              <div className="relative">
+                <Textarea
+                  placeholder="How can no-code.wtf help you today?"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[120px] bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 resize-none text-lg p-6 rounded-xl backdrop-blur-sm"
+                />
+                <div className="absolute bottom-4 right-4 flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <Wand2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={executePrompt}
+                disabled={isExecuting || !enhancedGeminiService}
+                className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+              >
+                {isExecuting ? (
+                  <>
+                    <Brain className="mr-2 w-5 h-5 animate-spin" />
+                    Processing with AI...
+                  </>
+                ) : (
+                  <>
+                    <Play className="mr-2 w-5 h-5" />
+                    Build with AI
+                  </>
+                )}
               </Button>
             </div>
+
+            {!enhancedGeminiService && (
+              <div className="max-w-lg mx-auto">
+                <ApiKeyInput onApiKeySubmit={handleApiKeySubmit} isLoading={isExecuting} />
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Enhanced AI Control Panel */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              AI-Powered Development Platform
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience the future of no-code development with enhanced Gemini AI control
-            </p>
-          </div>
+      {enhancedGeminiService && (
+        <section className="py-20 bg-gray-900/50 backdrop-blur-sm">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                AI-Powered Development Platform
+              </h2>
+              <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                Experience the future of no-code development with enhanced Gemini AI control
+              </p>
+            </div>
 
-          <div className="max-w-6xl mx-auto space-y-8">
-            {!enhancedGeminiService && (
-              <ApiKeyInput onApiKeySubmit={handleApiKeySubmit} isLoading={isExecuting} />
-            )}
-
-            {enhancedGeminiService && (
+            <div className="max-w-6xl mx-auto">
               <AIControlPanel 
                 geminiService={enhancedGeminiService}
                 onCodeGenerated={handleCodeGenerated}
               />
-            )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Code Playground Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+      <section className="py-20 bg-gray-800/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Visual Code Playground
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               Write, edit, and execute code with our integrated CodeMirror editor
             </p>
           </div>
@@ -155,149 +190,106 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Interactive Demo Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Try It Live
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience the power of real AI prompt execution with Google Gemini
-            </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <Card className="shadow-2xl border-0 bg-gradient-to-br from-blue-50 to-orange-50">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-gray-900">AI Prompt Execution</CardTitle>
-                <CardDescription className="text-gray-600">
-                  Connect your Gemini API key and execute prompts with real AI
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Your AI Prompt
-                  </label>
-                  <Textarea
-                    placeholder="e.g., Write a creative story about a robot learning to paint..."
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[100px] resize-none border-2 focus:border-blue-500 transition-colors"
-                  />
-                </div>
-                
-                <Button 
-                  onClick={executePrompt}
-                  disabled={isExecuting || !enhancedGeminiService}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  {isExecuting ? (
-                    <>
-                      <Brain className="mr-2 w-5 h-5 animate-spin" />
-                      Processing with Enhanced Gemini AI...
-                    </>
-                  ) : (
-                    <>
-                      <Play className="mr-2 w-5 h-5" />
-                      Execute Prompt
-                    </>
-                  )}
-                </Button>
-                
-                {result && (
-                  <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-600">
-                    <h4 className="font-semibold text-gray-900 mb-2">AI Result:</h4>
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{result}</p>
+      {/* Results Section */}
+      {result && (
+        <section className="py-20 bg-gray-900/50">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <Card className="bg-gray-800/50 border-gray-600 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-white">AI Result</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-600">
+                    <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">{result}</p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Features Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-orange-50">
+      <section className="py-20 bg-gray-800/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Powerful Features
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               Everything you need for AI development without writing a single line of code
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-0 overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                <Zap className="w-8 h-8 mb-2 group-hover:animate-pulse" />
-                <CardTitle>AI Prompt Execution</CardTitle>
+            <Card className="bg-gray-800/50 border-gray-600 hover:bg-gray-800/70 transition-all backdrop-blur-sm group">
+              <CardHeader>
+                <Zap className="w-8 h-8 mb-2 text-blue-400 group-hover:animate-pulse" />
+                <CardTitle className="text-white">AI Prompt Execution</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <CardDescription className="text-gray-600 leading-relaxed">
+              <CardContent>
+                <CardDescription className="text-gray-300 leading-relaxed">
                   Execute prompts with various AI models and get instant, real-time results with advanced processing capabilities.
                 </CardDescription>
               </CardContent>
             </Card>
             
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-0 overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-                <FileText className="w-8 h-8 mb-2 group-hover:animate-pulse" />
-                <CardTitle>File Analysis</CardTitle>
+            <Card className="bg-gray-800/50 border-gray-600 hover:bg-gray-800/70 transition-all backdrop-blur-sm group">
+              <CardHeader>
+                <FileText className="w-8 h-8 mb-2 text-purple-400 group-hover:animate-pulse" />
+                <CardTitle className="text-white">File Analysis</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <CardDescription className="text-gray-600 leading-relaxed">
+              <CardContent>
+                <CardDescription className="text-gray-300 leading-relaxed">
                   Intelligent highlighting of prompts in .txt and .md files with AI-powered analysis and optimization.
                 </CardDescription>
               </CardContent>
             </Card>
             
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-0 overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                <Layers className="w-8 h-8 mb-2 group-hover:animate-pulse" />
-                <CardTitle>Visual Interface</CardTitle>
+            <Card className="bg-gray-800/50 border-gray-600 hover:bg-gray-800/70 transition-all backdrop-blur-sm group">
+              <CardHeader>
+                <Layers className="w-8 h-8 mb-2 text-orange-400 group-hover:animate-pulse" />
+                <CardTitle className="text-white">Visual Interface</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <CardDescription className="text-gray-600 leading-relaxed">
+              <CardContent>
+                <CardDescription className="text-gray-300 leading-relaxed">
                   No-code drag-and-drop prompt building with intuitive visual tools for rapid AI development.
                 </CardDescription>
               </CardContent>
             </Card>
             
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-0 overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-                <Brain className="w-8 h-8 mb-2 group-hover:animate-pulse" />
-                <CardTitle>Smart Detection</CardTitle>
+            <Card className="bg-gray-800/50 border-gray-600 hover:bg-gray-800/70 transition-all backdrop-blur-sm group">
+              <CardHeader>
+                <Brain className="w-8 h-8 mb-2 text-green-400 group-hover:animate-pulse" />
+                <CardTitle className="text-white">Smart Detection</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <CardDescription className="text-gray-600 leading-relaxed">
+              <CardContent>
+                <CardDescription className="text-gray-300 leading-relaxed">
                   AI-powered prompt identification and classification with intelligent suggestions and improvements.
                 </CardDescription>
               </CardContent>
             </Card>
             
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-0 overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-red-500 to-red-600 text-white">
-                <Target className="w-8 h-8 mb-2 group-hover:animate-pulse" />
-                <CardTitle>Real-time Results</CardTitle>
+            <Card className="bg-gray-800/50 border-gray-600 hover:bg-gray-800/70 transition-all backdrop-blur-sm group">
+              <CardHeader>
+                <Target className="w-8 h-8 mb-2 text-red-400 group-hover:animate-pulse" />
+                <CardTitle className="text-white">Real-time Results</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <CardDescription className="text-gray-600 leading-relaxed">
+              <CardContent>
+                <CardDescription className="text-gray-300 leading-relaxed">
                   Instant execution and feedback with live monitoring and performance analytics for optimal results.
                 </CardDescription>
               </CardContent>
             </Card>
             
-            <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow border-0 overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                <Users className="w-8 h-8 mb-2 group-hover:animate-pulse" />
-                <CardTitle>Y Combinator Backed</CardTitle>
+            <Card className="bg-gray-800/50 border-gray-600 hover:bg-gray-800/70 transition-all backdrop-blur-sm group">
+              <CardHeader>
+                <Users className="w-8 h-8 mb-2 text-blue-400 group-hover:animate-pulse" />
+                <CardTitle className="text-white">Y Combinator Backed</CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <CardDescription className="text-gray-600 leading-relaxed">
+              <CardContent>
+                <CardDescription className="text-gray-300 leading-relaxed">
                   Trusted by the world's top accelerator with enterprise-grade security and reliability.
                 </CardDescription>
               </CardContent>
@@ -307,19 +299,19 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-20 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Build Without Code?
           </h2>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Join thousands of users who are already creating amazing AI applications with no-code.wtf
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all rounded-xl">
               Start Building Now <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-6 text-lg font-semibold transition-all">
+            <Button variant="outline" size="lg" className="border-2 border-gray-400 text-gray-200 hover:bg-gray-700 hover:text-white px-8 py-6 text-lg font-semibold transition-all rounded-xl">
               Contact Sales
             </Button>
           </div>
@@ -327,7 +319,7 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 text-white py-12 border-t border-gray-700">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
