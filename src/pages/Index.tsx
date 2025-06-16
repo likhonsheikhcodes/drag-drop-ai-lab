@@ -3,29 +3,51 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, Zap, Code, Users, Target, Play, Sparkles, Brain, FileText, Layers } from "lucide-react";
 import { toast } from "sonner";
+import { ApiKeyInput } from "@/components/ApiKeyInput";
+import { GeminiService } from "@/services/gemini";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
   const [result, setResult] = useState("");
+  const [geminiService, setGeminiService] = useState<GeminiService | null>(null);
+
+  const handleApiKeySubmit = (apiKey: string) => {
+    try {
+      const service = new GeminiService(apiKey);
+      setGeminiService(service);
+      toast.success("Connected to Gemini AI successfully!");
+    } catch (error) {
+      toast.error("Failed to connect to Gemini AI");
+    }
+  };
 
   const executePrompt = async () => {
     if (!prompt.trim()) {
       toast.error("Please enter a prompt to execute");
       return;
     }
+
+    if (!geminiService) {
+      toast.error("Please connect your Gemini API key first");
+      return;
+    }
     
     setIsExecuting(true);
-    // Simulate AI execution
-    setTimeout(() => {
-      setResult(`AI Response: This is a demo response to your prompt: "${prompt}". In the full platform, this would be processed by advanced AI models with real-time analysis and optimization.`);
-      setIsExecuting(false);
+    try {
+      const response = await geminiService.executePrompt(prompt);
+      setResult(`AI Response (${response.model}): ${response.text}`);
       toast.success("Prompt executed successfully!");
-    }, 2000);
+    } catch (error) {
+      console.error("Error executing prompt:", error);
+      setResult("Error: Failed to execute prompt. Please check your API key and try again.");
+      toast.error("Failed to execute prompt");
+    } finally {
+      setIsExecuting(false);
+    }
   };
 
   return (
@@ -73,25 +95,29 @@ const Index = () => {
               Try It Live
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience the power of visual AI prompt execution
+              Experience the power of real AI prompt execution with Google Gemini
             </p>
           </div>
           
           <div className="max-w-4xl mx-auto">
             <Card className="shadow-2xl border-0 bg-gradient-to-br from-blue-50 to-orange-50">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-gray-900">Prompt Execution Demo</CardTitle>
+                <CardTitle className="text-2xl font-bold text-gray-900">AI Prompt Execution</CardTitle>
                 <CardDescription className="text-gray-600">
-                  Enter a prompt below and see real-time AI processing
+                  Connect your Gemini API key and execute prompts with real AI
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {!geminiService && (
+                  <ApiKeyInput onApiKeySubmit={handleApiKeySubmit} isLoading={isExecuting} />
+                )}
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Your AI Prompt
                   </label>
                   <Textarea
-                    placeholder="e.g., Generate a creative story about a robot learning to paint..."
+                    placeholder="e.g., Write a creative story about a robot learning to paint..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     className="min-h-[100px] resize-none border-2 focus:border-blue-500 transition-colors"
@@ -100,13 +126,13 @@ const Index = () => {
                 
                 <Button 
                   onClick={executePrompt}
-                  disabled={isExecuting}
+                  disabled={isExecuting || !geminiService}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   {isExecuting ? (
                     <>
                       <Brain className="mr-2 w-5 h-5 animate-spin" />
-                      Processing...
+                      Processing with Gemini AI...
                     </>
                   ) : (
                     <>
@@ -119,7 +145,7 @@ const Index = () => {
                 {result && (
                   <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-600">
                     <h4 className="font-semibold text-gray-900 mb-2">AI Result:</h4>
-                    <p className="text-gray-700 leading-relaxed">{result}</p>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{result}</p>
                   </div>
                 )}
               </CardContent>
