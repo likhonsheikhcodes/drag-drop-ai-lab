@@ -1,12 +1,16 @@
 
 import { useEffect, useRef } from 'react';
-import { EditorView } from '@codemirror/view';
+import { EditorView, keymap, highlightActiveLine, lineNumbers, highlightActiveLineGutter } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
 import { html } from '@codemirror/lang-html';
 import { css } from '@codemirror/lang-css';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { basicSetup } from '@codemirror/basic-setup';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import { foldGutter, indentOnInput, indentUnit, bracketMatching } from '@codemirror/language';
+import { lintKeymap } from '@codemirror/lint';
 
 interface CodeEditorProps {
   value: string;
@@ -46,27 +50,50 @@ export const CodeEditor = ({
     if (!editorRef.current) return;
 
     const extensions = [
-      basicSetup,
-      getLanguageExtension(),
+      lineNumbers(),
+      highlightActiveLineGutter(),
+      highlightActiveLine(),
+      history(),
+      foldGutter(),
+      indentOnInput(),
+      bracketMatching(),
+      closeBrackets(),
+      autocompletion(),
+      highlightSelectionMatches(),
+      indentUnit.of('  '),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           onChange(update.state.doc.toString());
         }
       }),
+      keymap.of([
+        ...closeBracketsKeymap,
+        ...defaultKeymap,
+        ...searchKeymap,
+        ...historyKeymap,
+        ...completionKeymap,
+        ...lintKeymap,
+      ]),
+      getLanguageExtension(),
       EditorView.theme({
         '&': {
           height: height,
+          fontSize: '14px',
         },
         '.cm-content': {
           padding: '16px',
           minHeight: height,
+          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+          lineHeight: '1.5',
         },
         '.cm-focused': {
           outline: 'none',
         },
         '.cm-editor': {
           fontSize: '14px',
-          lineHeight: '1.5',
+        },
+        '.cm-scroller': {
+          overflow: 'auto',
         },
       }),
     ];
@@ -87,6 +114,7 @@ export const CodeEditor = ({
 
     return () => {
       viewRef.current?.destroy();
+      viewRef.current = null;
     };
   }, [language, theme, height]);
 
