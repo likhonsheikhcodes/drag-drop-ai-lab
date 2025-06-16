@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,21 +6,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, Zap, Code, Users, Target, Play, Sparkles, Brain, FileText, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
-import { GeminiService } from "@/services/gemini";
+import { CodePlayground } from "@/components/CodePlayground";
+import { AIControlPanel } from "@/components/AIControlPanel";
+import { EnhancedGeminiService } from "@/services/enhanced-gemini";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
   const [result, setResult] = useState("");
-  const [geminiService, setGeminiService] = useState<GeminiService | null>(null);
+  const [enhancedGeminiService, setEnhancedGeminiService] = useState<EnhancedGeminiService | null>(null);
+  const [playgroundCode, setPlaygroundCode] = useState("// Welcome to no-code.wtf!\n// AI-powered code generation platform\n\nconsole.log('Hello, no-code world!');");
 
   const handleApiKeySubmit = (apiKey: string) => {
     try {
-      const service = new GeminiService(apiKey);
-      setGeminiService(service);
-      toast.success("Connected to Gemini AI successfully!");
+      const service = new EnhancedGeminiService(apiKey);
+      setEnhancedGeminiService(service);
+      toast.success("Connected to Enhanced Gemini AI successfully!");
     } catch (error) {
-      toast.error("Failed to connect to Gemini AI");
+      toast.error("Failed to connect to Enhanced Gemini AI");
     }
   };
 
@@ -31,15 +33,15 @@ const Index = () => {
       return;
     }
 
-    if (!geminiService) {
+    if (!enhancedGeminiService) {
       toast.error("Please connect your Gemini API key first");
       return;
     }
     
     setIsExecuting(true);
     try {
-      const response = await geminiService.executePrompt(prompt);
-      setResult(`AI Response (${response.model}): ${response.text}`);
+      const response = await enhancedGeminiService.executePromptWithFullControl(prompt);
+      setResult(`Enhanced AI Response (${response.model}): ${response.text}`);
       toast.success("Prompt executed successfully!");
     } catch (error) {
       console.error("Error executing prompt:", error);
@@ -47,6 +49,26 @@ const Index = () => {
       toast.error("Failed to execute prompt");
     } finally {
       setIsExecuting(false);
+    }
+  };
+
+  const handleCodeGenerated = (code: string, language: string) => {
+    setPlaygroundCode(code);
+    toast.success(`${language} code loaded into playground!`);
+  };
+
+  const handlePlaygroundExecute = async (code: string, language: string) => {
+    if (!enhancedGeminiService) {
+      toast.error("Please connect Gemini AI first");
+      return;
+    }
+
+    try {
+      const analysis = await enhancedGeminiService.analyzeCode(code);
+      setResult(`Code Analysis: ${analysis}`);
+    } catch (error) {
+      console.error("Code execution error:", error);
+      throw error;
     }
   };
 
@@ -87,6 +109,52 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Enhanced AI Control Panel */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              AI-Powered Development Platform
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Experience the future of no-code development with enhanced Gemini AI control
+            </p>
+          </div>
+
+          <div className="max-w-6xl mx-auto space-y-8">
+            {!enhancedGeminiService && (
+              <ApiKeyInput onApiKeySubmit={handleApiKeySubmit} isLoading={isExecuting} />
+            )}
+
+            {enhancedGeminiService && (
+              <AIControlPanel 
+                geminiService={enhancedGeminiService}
+                onCodeGenerated={handleCodeGenerated}
+              />
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Code Playground Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Visual Code Playground
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Write, edit, and execute code with our integrated CodeMirror editor
+            </p>
+          </div>
+
+          <CodePlayground 
+            initialCode={playgroundCode}
+            onExecute={handlePlaygroundExecute}
+          />
+        </div>
+      </section>
+
       {/* Interactive Demo Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
@@ -108,10 +176,6 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {!geminiService && (
-                  <ApiKeyInput onApiKeySubmit={handleApiKeySubmit} isLoading={isExecuting} />
-                )}
-                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Your AI Prompt
@@ -126,13 +190,13 @@ const Index = () => {
                 
                 <Button 
                   onClick={executePrompt}
-                  disabled={isExecuting || !geminiService}
+                  disabled={isExecuting || !enhancedGeminiService}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   {isExecuting ? (
                     <>
                       <Brain className="mr-2 w-5 h-5 animate-spin" />
-                      Processing with Gemini AI...
+                      Processing with Enhanced Gemini AI...
                     </>
                   ) : (
                     <>
